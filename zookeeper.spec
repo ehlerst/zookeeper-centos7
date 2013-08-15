@@ -20,9 +20,10 @@ Patch2:        %{name}-3.4.5-zktreeutil-gcc.patch
 Patch3:        %{name}-3.4.5-disable-cygwin-detection.patch
 Patch4:        %{name}-3.4.5-build-contrib.patch
 Patch5:        %{name}-3.4.5-add-PIE-and-RELRO.patch
-Patch6:        %{name}-3.4.5-atomic.patch
+#Patch6:        %{name}-3.4.5-atomic.patch
 # remove date/time from console output since journald will keep track of date/time
 Patch7:        %{name}-3.4.5-log4j.patch
+Patch8:        https://issues.apache.org/jira/secure/attachment/12570030/mt_adaptor.c.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -162,8 +163,9 @@ find -name "*.dll" -delete
 %patch3 -p0
 %patch4 -p1
 %patch5 -p1
-%patch6 -p1
+#%patch6 -p1
 %patch7 -p1
+%patch8 -p0 
 
 sed -i "s|<packaging>pom</packaging>|<packaging>jar</packaging>|" dist-maven/%{name}-%{version}.pom
 sed -i "s|<groupId>checkstyle</groupId>|<groupId>com.puppycrawl.tools</groupId>|" dist-maven/%{name}-%{version}.pom
