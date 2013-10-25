@@ -368,7 +368,7 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
-* Thu Oct 25 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-14
+* Fri Oct 25 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-14
 - Update dependencies to jline1
 
 * Wed Sep 18 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-13
