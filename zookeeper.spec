@@ -1,7 +1,7 @@
 %global _hardened_build 1
 Name:          zookeeper
 Version:       3.4.5
-Release:       13%{?dist}
+Release:       14%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 #Group:         Development/Libraries
 License:       ASL 2.0 and BSD
@@ -368,6 +368,9 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
+* Thu Oct 25 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-14
+- Update dependencies to jline1
+
 * Wed Sep 18 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-13
 - Fixed the atomic patch which actually caused recursive crashing on zookeeper_close
 
