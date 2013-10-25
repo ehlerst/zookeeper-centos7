@@ -44,7 +44,7 @@ BuildRequires: ant
 BuildRequires: ant-junit
 BuildRequires: apache-ivy
 BuildRequires: checkstyle
-BuildRequires: jline
+BuildRequires: jline1
 BuildRequires: jtoaster
 BuildRequires: junit
 BuildRequires: log4j
