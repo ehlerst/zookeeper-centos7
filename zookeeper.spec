@@ -45,7 +45,7 @@ BuildRequires: ant
 BuildRequires: ant-junit
 BuildRequires: apache-ivy
 BuildRequires: checkstyle
-BuildRequires: jline
+BuildRequires: jline1
 BuildRequires: jtoaster
 BuildRequires: junit
 BuildRequires: log4j
@@ -96,7 +96,7 @@ Summary:       Zookeeper Java client library
 # Requires:      felix-framework
 # Requires:      felix-osgi-compendium
 Requires:      checkstyle
-Requires:      jline
+Requires:      jline1
 Requires:      jtoaster
 Requires:      junit
 Requires:      log4j
@@ -168,7 +168,7 @@ find -name "*.dll" -delete
 %patch7 -p1
 %patch8 -p0 
 
-sed -i "s|<version>0.9.94</version>|<version>2.10</version>|" dist-maven/%{name}-%{version}.pom
+sed -i "s|<version>0.9.94</version>|<version>1.0</version>|" dist-maven/%{name}-%{version}.pom
 sed -i "s|<version>3.2.2.Final</version>|<version>3.6.6.Final</version>|" dist-maven/%{name}-%{version}.pom
 sed -i "s|org.jboss.netty|io.netty|" dist-maven/%{name}-%{version}.pom
 
@@ -374,7 +374,7 @@ getent passwd zookeeper >/dev/null || \
 
 %changelog
 * Fri Jan 24 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-15
-- Update dependencies to jline and netty3
+- Update jline and netty3 for f21 builds
 
 * Fri Oct 25 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-14
 - Update dependencies to jline1
