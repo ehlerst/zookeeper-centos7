@@ -406,10 +406,10 @@ diff -Nru zookeeper-3.4.4/ivy.xml zookeeper-3.4.4-gil/ivy.xml
 -    <dependency org="log4j" name="log4j" rev="1.2.15" transitive="false" conf="default"/>
 -    <dependency org="jline" name="jline" rev="0.9.94" transitive="false" conf="default"/>
 +    <dependency org="log4j" name="log4j" rev="" transitive="false" conf="default"/>
-+    <dependency org="jline" name="jline" rev="" transitive="false" conf="default"/>
++    <!--<dependency org="jline" name="jline" rev="" transitive="false" conf="default"/>-->
  
 -    <dependency org="org.jboss.netty" name="netty" conf="default" rev="3.2.2.Final">
-+    <dependency org="org.jboss.netty" name="netty" conf="default" rev="">
++    <dependency org="io.netty" name="netty" conf="default" rev="">
        <artifact name="netty" type="jar" conf="default"/>
      </dependency>
  

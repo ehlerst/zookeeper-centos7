@@ -1,7 +1,8 @@
 %global _hardened_build 1
+
 Name:          zookeeper
 Version:       3.4.5
-Release:       14%{?dist}
+Release:       15%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 #Group:         Development/Libraries
 License:       ASL 2.0 and BSD
@@ -44,12 +45,12 @@ BuildRequires: ant
 BuildRequires: ant-junit
 BuildRequires: apache-ivy
 BuildRequires: checkstyle
-BuildRequires: jline1
+BuildRequires: jline
 BuildRequires: jtoaster
 BuildRequires: junit
 BuildRequires: log4j
 BuildRequires: mockito
-BuildRequires: netty
+BuildRequires: netty3
 BuildRequires: slf4j
 BuildRequires: xerces-j2
 BuildRequires: xml-commons-apis
@@ -100,7 +101,7 @@ Requires:      jtoaster
 Requires:      junit
 Requires:      log4j
 Requires:      mockito
-Requires:      netty
+Requires:      netty3
 Requires:      slf4j
 
 Requires:      java
@@ -166,6 +167,10 @@ find -name "*.dll" -delete
 #%patch6 -p1
 %patch7 -p1
 %patch8 -p0 
+
+sed -i "s|<version>0.9.94</version>|<version>2.10</version>|" dist-maven/%{name}-%{version}.pom
+sed -i "s|<version>3.2.2.Final</version>|<version>3.6.6.Final</version>|" dist-maven/%{name}-%{version}.pom
+sed -i "s|org.jboss.netty|io.netty|" dist-maven/%{name}-%{version}.pom
 
 sed -i "s|<packaging>pom</packaging>|<packaging>jar</packaging>|" dist-maven/%{name}-%{version}.pom
 sed -i "s|<groupId>checkstyle</groupId>|<groupId>com.puppycrawl.tools</groupId>|" dist-maven/%{name}-%{version}.pom
@@ -368,6 +373,9 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
+* Fri Jan 24 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-15
+- Update dependencies to jline and netty3
+
 * Fri Oct 25 2013 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-14
 - Update dependencies to jline1
 
