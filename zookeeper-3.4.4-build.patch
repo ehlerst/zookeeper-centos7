@@ -409,8 +409,9 @@ diff -Nru zookeeper-3.4.4/ivy.xml zookeeper-3.4.4-gil/ivy.xml
 +    <!--<dependency org="jline" name="jline" rev="" transitive="false" conf="default"/>-->
  
 -    <dependency org="org.jboss.netty" name="netty" conf="default" rev="3.2.2.Final">
+-      <artifact name="netty" type="jar" conf="default"/>
 +    <dependency org="io.netty" name="netty" conf="default" rev="">
-       <artifact name="netty" type="jar" conf="default"/>
++      <artifact name="netty3-3" type="jar" conf="default"/>
      </dependency>
  
 -    <dependency org="org.vafer" name="jdeb" rev="0.8" conf="package->master"/>
