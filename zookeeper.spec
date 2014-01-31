@@ -2,13 +2,13 @@
 
 Name:          zookeeper
 Version:       3.4.5
-Release:       15%{?dist}
+Release:       16%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 #Group:         Development/Libraries
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
 Source0:       http://www.apache.org/dist/%{name}/stable/%{name}-%{version}.tar.gz
-Source1:       %{name}-test-template.pom
+#Source1:       %{name}-test-template.pom
 Source2:       %{name}-ZooInspector-template.pom
 Source3:       %{name}.service
 # remove non free clover references
@@ -176,9 +176,8 @@ sed -i "s|<packaging>pom</packaging>|<packaging>jar</packaging>|" dist-maven/%{n
 sed -i "s|<groupId>checkstyle</groupId>|<groupId>com.puppycrawl.tools</groupId>|" dist-maven/%{name}-%{version}.pom
 sed -i "s|<artifactId>mockito-all</artifactId>|<artifactId>mockito-core</artifactId>|" dist-maven/%{name}-%{version}.pom
 
-cp -p %{SOURCE1} dist-maven/%{name}-%{version}-test.pom
 cp -p %{SOURCE2} dist-maven/%{name}-%{version}-ZooInspector.pom
-sed -i "s|@version@|%{version}|" dist-maven/%{name}-%{version}-test.pom dist-maven/%{name}-%{version}-ZooInspector.pom
+sed -i "s|@version@|%{version}|" dist-maven/%{name}-%{version}-ZooInspector.pom
 
 iconv -f iso8859-1 -t utf-8 src/c/ChangeLog > src/c/ChangeLog.conv && mv -f src/c/ChangeLog.conv src/c/ChangeLog
 sed -i 's/\r//' src/c/ChangeLog
@@ -252,14 +251,13 @@ ant -Dversion=%{version} -DlastRevision=-1 test-core-java
 
 mkdir -p %{buildroot}%{_javadir}/%{name}
 install -pm 644 build/%{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}/%{name}.jar
-install -pm 644 build/%{name}-%{version}-test.jar %{buildroot}%{_javadir}/%{name}/%{name}-test.jar
+install -pm 644 build/%{name}-%{version}-test.jar %{buildroot}%{_javadir}/%{name}/%{name}-tests.jar
 install -pm 644 build/contrib/ZooInspector/%{name}-ZooInspector-%{version}.jar %{buildroot}%{_javadir}/%{name}/%{name}-ZooInspector.jar
 
 mkdir -p %{buildroot}%{_mavenpomdir}
 install -pm 644 dist-maven/%{name}-%{version}.pom %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}.pom
 %add_maven_depmap JPP.%{name}-%{name}.pom %{name}/%{name}.jar
-install -pm 644 dist-maven/%{name}-%{version}-test.pom %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-test.pom
-%add_maven_depmap JPP.%{name}-%{name}-test.pom %{name}/%{name}-test.jar
+%add_maven_depmap org.apache.zookeeper:zookeeper::tests:%{version} %{name}/%{name}-tests.jar
 install -pm 644 dist-maven/%{name}-%{version}-ZooInspector.pom %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
 %add_maven_depmap JPP.%{name}-%{name}-ZooInspector.pom %{name}/%{name}-ZooInspector.jar
 
@@ -342,10 +340,9 @@ getent passwd zookeeper >/dev/null || \
 %files java
 %dir %{_javadir}/%{name}
 %{_javadir}/%{name}/%{name}.jar
-%{_javadir}/%{name}/%{name}-test.jar
+%{_javadir}/%{name}/%{name}-tests.jar
 %{_javadir}/%{name}/%{name}-ZooInspector.jar
 %{_mavenpomdir}/JPP.%{name}-%{name}.pom
-%{_mavenpomdir}/JPP.%{name}-%{name}-test.pom
 %{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
 %{_mavendepmapfragdir}/%{name}
 %doc CHANGES.txt LICENSE.txt NOTICE.txt README.txt
@@ -373,6 +370,9 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
+* Fri Jan 31 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-16
+- Update of tests.jar due to netty3 compat packaging conflicts
+
 * Fri Jan 24 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-15
 - Update jline and netty3 for f21 builds
 
