@@ -2,7 +2,7 @@
 
 Name:          zookeeper
 Version:       3.4.5
-Release:       17%{?dist}
+Release:       18%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 #Group:         Development/Libraries
 License:       ASL 2.0 and BSD
@@ -370,6 +370,9 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
+* Fri May 23 2014 Petr Machata <pmachata@redhat.com> - 3.4.5-18
+- Rebuild for boost 1.55.0
+
 * Mon Feb 24 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-17
 - Update due to cascading dependencies around java-headless
 
