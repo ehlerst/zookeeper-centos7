@@ -1,8 +1,8 @@
 %global _hardened_build 1
 
 Name:          zookeeper
-Version:       3.4.5
-Release:       17%{?dist}
+Version:       3.4.6
+Release:       1%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 #Group:         Development/Libraries
 License:       ASL 2.0 and BSD
@@ -14,17 +14,16 @@ Source3:       %{name}.service
 # remove non free clover references
 # configure ivy to use system libraries
 # disable rat-lib and jdiff support
-Patch0:        %{name}-3.4.4-build.patch
+# Patch0:        %{name}-3.4.4-build.patch
 # https://issues.apache.org/jira/browse/ZOOKEEPER-1557
-Patch1:        https://issues.apache.org/jira/secure/attachment/12548109/ZOOKEEPER-1557.patch
+# Patch1:        https://issues.apache.org/jira/secure/attachment/12548109/ZOOKEEPER-1557.patch
 Patch2:        %{name}-3.4.5-zktreeutil-gcc.patch
-Patch3:        %{name}-3.4.5-disable-cygwin-detection.patch
+#Patch3:        %{name}-3.4.5-disable-cygwin-detection.patch
 Patch4:        %{name}-3.4.5-build-contrib.patch
 Patch5:        %{name}-3.4.5-add-PIE-and-RELRO.patch
-#Patch6:        %{name}-3.4.5-atomic.patch
 # remove date/time from console output since journald will keep track of date/time
-Patch7:        %{name}-3.4.5-log4j.patch
-Patch8:        https://issues.apache.org/jira/secure/attachment/12570030/mt_adaptor.c.patch
+Patch6:        %{name}-3.4.5-log4j.patch
+
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -44,11 +43,13 @@ BuildRequires: python-devel
 BuildRequires: ant
 BuildRequires: ant-junit
 BuildRequires: apache-ivy
+BuildRequires: ivy-local
 BuildRequires: checkstyle
 BuildRequires: jline1
 BuildRequires: jtoaster
 BuildRequires: junit
-BuildRequires: log4j
+BuildRequires: log4j12
+
 BuildRequires: mockito
 BuildRequires: netty3
 BuildRequires: slf4j
@@ -149,8 +150,9 @@ find -name "*.cmd" -delete
 find -name "*.so*" -delete
 find -name "*.dll" -delete
 
-%patch0 -p1
-%patch1 -p0
+#%patch0 -p1
+#%patch1 -p0
+
 %pom_remove_dep org.vafer:jdeb dist-maven/%{name}-%{version}.pom
 # jdiff task deps
 %pom_remove_dep jdiff:jdiff dist-maven/%{name}-%{version}.pom
@@ -161,12 +163,10 @@ find -name "*.dll" -delete
 %pom_remove_dep commons-lang:commons-lang dist-maven/%{name}-%{version}.pom
 
 %patch2 -p0
-%patch3 -p0
+#%patch3 -p0
 %patch4 -p1
 %patch5 -p1
-#%patch6 -p1
-%patch7 -p1
-%patch8 -p0 
+%patch6 -p1
 
 sed -i "s|<version>0.9.94</version>|<version>1.0</version>|" dist-maven/%{name}-%{version}.pom
 sed -i "s|<version>3.2.2.Final</version>|<version>3.6.6.Final</version>|" dist-maven/%{name}-%{version}.pom
@@ -190,45 +190,49 @@ sed -i 's@^dataDir=.*$@dataDir=%{_sharedstatedir}/zookeeper/data\ndataLogDir=%{_
 
 %build
 
+# TODO: Specify the output build directory.
+
+%ant -Divy.mode=local package-native
+
 # ensure that source and target are 1.5
-%ant -Dtarget.jdk=1.5 \
-     -Djavadoc.link.java=%{_javadocdir}/java \
-     -Dant.build.javac.source=1.5 \
-     -Dant.build.javac.target=1.5 \
-     build-generated jar test-jar javadoc javadoc-dev
+#%ant -Dtarget.jdk=1.5 \
+#     -Djavadoc.link.java=%{_javadocdir}/java \
+#     -Dant.build.javac.source=1.5 \
+#     -Dant.build.javac.target=1.5 \
+#     build-generated jar test-jar javadoc javadoc-dev
+#
+#(
+#cd src/contrib
+#%ant -Dversion=%{version} \
+#     -Dcontribfilesetincludes="zooinspector/build.xml" \
+#     -Dant.build.javac.source=1.5 \
+#     -Dant.build.javac.target=1.5 \
+#     -Dtarget.jdk=1.5 \
+#     -DlastRevision=-1 \
+#     -Divy.jar.exists=true \
+#     -Divy.initialized=true \
+#     -Ddest.dir=../../build/zookeeper
+#)
 
-(
-cd src/contrib
-%ant -Dversion=%{version} \
-     -Dcontribfilesetincludes="zooinspector/build.xml" \
-     -Dant.build.javac.source=1.5 \
-     -Dant.build.javac.target=1.5 \
-     -Dtarget.jdk=1.5 \
-     -DlastRevision=-1 \
-     -Divy.jar.exists=true \
-     -Divy.initialized=true \
-     -Ddest.dir=../../build/zookeeper
-)
-
-pushd src/c
-rm -rf autom4te.cache
-autoreconf -fis
-
-%configure --disable-static --disable-rpath --with-syncapi
+#pushd src/c
+#rm -rf autom4te.cache
+#autoreconf -fis
+#
+#%configure --disable-static --disable-rpath --with-syncapi
 # Remove rpath
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
+#sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
+#sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 %{__make} %{?_smp_mflags}
-make doxygen-doc
-popd
+#make doxygen-doc
+#popd
 
 # Compile zktreeutil
-pushd src/contrib/zktreeutil
-rm -rf autom4te.cache
-autoreconf -if
-%configure
-%{__make} %{?_smp_mflags}
-popd
+#pushd src/contrib/zktreeutil
+#rm -rf autom4te.cache
+#autoreconf -if
+#%configure
+#%{__make} %{?_smp_mflags}
+#popd
 
 %if 0
 %check
