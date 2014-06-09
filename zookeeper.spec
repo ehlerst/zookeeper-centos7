@@ -374,6 +374,12 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.5-19
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Fri May 23 2014 Petr Machata <pmachata@redhat.com> - 3.4.5-18
+- Rebuild for boost 1.55.0
+
 * Mon Feb 24 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.5-17
 - Update due to cascading dependencies around java-headless
 
