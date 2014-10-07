@@ -319,6 +319,9 @@ getent passwd zookeeper >/dev/null || \
 %{_unitdir}/zookeeper.service
 
 %changelog
+* Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.5-20
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.5-19
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
