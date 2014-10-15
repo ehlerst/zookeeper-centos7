@@ -1,24 +1,22 @@
 %global commit          601207e1151b2691112c431fc3b4130a85ac93b5
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
+%global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global _hardened_build 1
+%global skiptests       1
 
 Name:          zookeeper
 Version:       3.4.6
 Release:       1%{?dist}
 Summary:       A high-performance coordination service for distributed applications
-#Group:         Development/Libraries
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
 Source0:       https://github.com/apache/zookeeper/archive/%{commit}/%{name}-%{version}-%{shortcommit}.tar.gz
 Source1:       %{name}-ZooInspector-template.pom
 Source2:       %{name}.service
+Source3:       zkEnv.sh
 
 Patch1:        %{name}-3.4.5-zktreeutil-gcc.patch
 Patch2:        %{name}-3.4.6-ivy-build.patch
-
-#Patch2:        %{name}-3.4.5-log4j.patch
-#Patch2:        %{name}-3.4.5-build-contrib.patch
-#Patch5:        %{name}-3.4.5-add-PIE-and-RELRO.patch
+#Patch3:        {name}-3.4.5-add-PIE-and-RELRO.patch
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -43,8 +41,11 @@ BuildRequires: checkstyle
 BuildRequires: jline1
 BuildRequires: jtoaster
 BuildRequires: junit
-#BuildRequires: log4j12
-BuildRequires: log4j
+%if 0%{?fedora} >= 21
+BuildRequires: mvn(org.slf4j:slf4j-log4j12)
+%else
+BuildRequires: mvn(log4j:log4j)
+%endif
 BuildRequires: json_simple
 
 BuildRequires: mockito
@@ -55,37 +56,6 @@ BuildRequires: xml-commons-apis
 
 BuildRequires: systemd
 
-%description
-ZooKeeper is a centralized service for maintaining configuration information,
-naming, providing distributed synchronization, and providing group services.
-
-%package lib
-Summary:       Zookeeper C client library
-#Group:         System Environment/Libraries
-
-%description lib
-ZooKeeper C client library for communicating with ZooKeeper Server.
-
-%package lib-devel
-Summary:       Development files for the %{name} library
-#Group:         Development/Libraries
-Requires:      %{name}-lib%{?_isa} = %{version}-%{release}
-
-%description lib-devel
-Development files for the ZooKeeper C client library.
-
-%package lib-doc
-Summary:       Documentation for the %{name} library
-#Group:         Documentation
-BuildArch:     noarch
-
-%description lib-doc
-Documentation for the ZooKeeper C client library.
-
-%package java
-#Group:         Development/Libraries
-Summary:       Zookeeper Java client library
-
 Requires:      checkstyle
 Requires:      jline1
 Requires:      jtoaster
@@ -94,56 +64,41 @@ Requires:      log4j
 Requires:      mockito
 Requires:      netty3
 Requires:      slf4j
-
 Requires:      java
 Requires:      jpackage-utils
-BuildArch:     noarch
 
-%description java
-This package provides a Java client interface to Zookeeper server.
+%description
+ZooKeeper is a centralized service for maintaining configuration information,
+naming, providing distributed synchronization, and providing group services.
+
+%package devel
+Summary:       Development files for the %{name} library
+Requires:      %{name}-lib%{?_isa} = %{version}-%{release}
+
+%description devel
+Development files for the ZooKeeper C client library.
 
 %package javadoc
-#Group:         Documentation
 Summary:       Javadoc for %{name}
-BuildArch:     noarch
 
 %description javadoc
 This package contains javadoc for %{name}.
 
-%package -n python-ZooKeeper
-#Group:         Development/Libraries
-Summary:       ZooKeeper python binding library
+%package -n python-%{name}
+Summary:       Python support for %{name}
 Requires:      %{name}-lib%{?_isa} = %{version}-%{release}
 Provides:      zkpython%{?_isa} = %{version}-%{release}
+Requires:      python2
 
-%description -n python-ZooKeeper
-ZooKeeper python binding library
-
-%package server
-#Group:         System Environment/Daemons
-Summary:       ZooKeeper server
-Requires:      %{name}-java = %{version}-%{release}
-Requires(post):   systemd
-Requires(preun):  systemd
-Requires(postun): systemd
-Requires(pre):    shadow-utils
-BuildArch:        noarch
-
-%description server
-ZooKeeper server
+%description -n python-%{name}
+The python-%{name} package contains Python bindings for %{name}.
 
 %prep
 %setup -q -n %{name}-%{commit}
 
 %patch1 -p0
 %patch2 -p1
-#%patch3 -p1
-#%patch4 -p1
-
-#
-
-#cp -p %{SOURCE1} dist-maven/%{name}-%{version}-ZooInspector.pom
-#sed -i "s|@version@|%{version}|" dist-maven/%{name}-%{version}-ZooInspector.pom
+#%%patch3 -p1
 
 iconv -f iso8859-1 -t utf-8 src/c/ChangeLog > src/c/ChangeLog.conv && mv -f src/c/ChangeLog.conv src/c/ChangeLog
 sed -i 's/\r//' src/c/ChangeLog
@@ -159,50 +114,54 @@ sed -i 's@^dataDir=.*$@dataDir=%{_sharedstatedir}/zookeeper/data\ndataLogDir=%{_
 -Djavadoc.link.java=%{_javadocdir}/java \
 -Dant.build.javac.source=1.5 \
 -Dant.build.javac.target=1.5 \
--Ddist.dir=%{buildroot} \
-package-native
+package
 
-#Compile zktreeutil
-# TODO - determine why it's not part of the default build
-pushd src/contrib/zktreeutil
-rm -rf autom4te.cache
+pushd src/c
 autoreconf -if
 %configure
 %{__make} %{?_smp_mflags}
 popd
 
+## TODO: install utilities?
+
 %check
-%ant -Divy.mode=local \
-test
+%if %skiptests
+  echo "Testing disabled, please enable in mock"
+%else
+  %ant -Divy.mode=local test
+%endif
 
 %install
+#install the c tools
+pushd src/c
+%make_install
+popd
+
+# install the java dependencies.
 mkdir -p %{buildroot}%{_javadir}/%{name}
 install -pm 644 build/%{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}/%{name}.jar
 install -pm 644 build/%{name}-%{version}-test.jar %{buildroot}%{_javadir}/%{name}/%{name}-tests.jar
 install -pm 644 build/contrib/ZooInspector/%{name}-%{version}-ZooInspector.jar %{buildroot}%{_javadir}/%{name}/%{name}-ZooInspector.jar
 
+install -pm 755 bin/zkCleanup.sh %{buildroot}%{_bindir}
+install -pm 755 bin/zkCli.sh %{buildroot}%{_bindir}
+install -pm 755 bin/zkServer.sh %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_libexecdir}
+install -pm 755 %{SOURCE3} %{buildroot}%{_libexecdir}
+
+%if 0%{?fedora} >= 21
+mkdir -p %{buildroot}%{_datadir}/maven-metadata
+mkdir -p %{buildroot}%{_datadir}/maven-poms/%{name}
+
+%add_maven_depmap %{name}-%{name}.pom %{name}/%{name}.jar
+%add_maven_depmap org.apache.zookeeper:zookeeper::tests:%{version} %{name}/%{name}-tests.jar
+
+install -pm 644 %{SOURCE1} %{buildroot}%{_datadir}/maven-poms/%{name}/%{name}-%{name}-ZooInspector.pom
+sed -i "s|@version@|%{version}|" %{buildroot}%{_datadir}/maven-poms/%{name}/%{name}-%{name}-ZooInspector.pom
+%add_maven_depmap %{name}-%{name}-ZooInspector.pom %{name}/%{name}-ZooInspector.jar
+%else
 mkdir -p %{buildroot}%{_mavenpomdir}
-install -pm 644 build/%{name}-%{version}/dist-maven/%{name}.pom %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}.pom
-
-####################################################
-# we will need to do our pom cleanup here.
-#%pom_remove_dep org.vafer:jdeb dist-maven/%{name}-%{version}.pom
-# jdiff task deps
-#%pom_remove_dep jdiff:jdiff dist-maven/%{name}-%{version}.pom
-#%pom_remove_dep xerces:xerces dist-maven/%{name}-%{version}.pom
-# rat-lib task deps
-#%pom_remove_dep org.apache.rat:apache-rat-tasks dist-maven/%{name}-%{version}.pom
-#%pom_remove_dep commons-collections:commons-collections dist-maven/%{name}-%{version}.pom
-#%pom_remove_dep commons-lang:commons-lang dist-maven/%{name}-%{version}.pom
-
-#sed -i "s|<version>0.9.94</version>|<version>1.0</version>|" dist-maven/%{name}-%{version}.pom
-#sed -i "s|<version>3.2.2.Final</version>|<version>3.6.6.Final</version>|" dist-maven/%{name}-%{version}.pom
-#sed -i "s|org.jboss.netty|io.netty|" dist-maven/%{name}-%{version}.pom
-
-#sed -i "s|<packaging>pom</packaging>|<packaging>jar</packaging>|" dist-maven/%{name}-%{version}.pom
-#sed -i "s|<groupId>checkstyle</groupId>|<groupId>com.puppycrawl.tools</groupId>|" dist-maven/%{name}-%{version}.pom
-#sed -i "s|<artifactId>mockito-all</artifactId>|<artifactId>mockito-core</artifactId>|" dist-maven/%{name}-%{version}.pom
-####################################################
+install -pm 644 build/%{name}-%{version}/dist-maven/%{name}-%{version}.pom %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}.pom
 
 %add_maven_depmap JPP.%{name}-%{name}.pom %{name}/%{name}.jar
 %add_maven_depmap org.apache.zookeeper:zookeeper::tests:%{version} %{name}/%{name}-tests.jar
@@ -211,26 +170,19 @@ install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-ZooIn
 sed -i "s|@version@|%{version}|" %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
 %add_maven_depmap JPP.%{name}-%{name}-ZooInspector.pom %{name}/%{name}-ZooInspector.jar
 
+%endif
+
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
 cp -pr build/docs/api/* %{buildroot}%{_javadocdir}/%{name}/
 
-#pushd build/c
-#%{__make} install DESTDIR=%{buildroot}
-# cleanup
-#rm -f docs/html/*.map
-#popd
-
-#pushd src/contrib/zktreeutil
-#%{__make} install DESTDIR=%{buildroot}
-#popd
-
-pushd build/contrib/zkpython
+pushd src/contrib/zkpython
 %{__python} src/python/setup.py build --build-base=$PWD/build \
 install --root=%{buildroot} ;\
 chmod 0755 %{buildroot}%{python_sitearch}/zookeeper.so
 popd
 
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
+find %{buildroot} -name '*.a' -exec rm -f {} ';'
 
 mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_sysconfdir}/zookeeper
@@ -244,68 +196,45 @@ install -p -m 0640 conf/zoo_sample.cfg %{buildroot}%{_sysconfdir}/zookeeper
 touch %{buildroot}%{_sysconfdir}/zookeeper/zoo.cfg
 touch %{buildroot}%{_sharedstatedir}/zookeeper/data/myid
 
-# TODO
-# bin/zkCleanup.sh
-# bin/zkCli.sh
-# bin/zkEnv.sh
-
-%post lib -p /sbin/ldconfig
-%postun lib -p /sbin/ldconfig
-
-%pre server
+%pre
 getent group zookeeper >/dev/null || groupadd -r zookeeper
 getent passwd zookeeper >/dev/null || \
     useradd -r -g zookeeper -d %{_sharedstatedir}/zookeeper -s /sbin/nologin \
     -c "ZooKeeper service account" zookeeper
-%post server
-%systemd_post zookeeper.service
 
-%preun server
+%post
+%systemd_post zookeeper.service
+/sbin/ldconfig
+
+%preun
 %systemd_preun zookeeper.service
 
-%postun server
+%postun
 %systemd_postun_with_restart zookeeper.service
+/sbin/ldconfig
 
 %files
 %{_bindir}/cli_mt
 %{_bindir}/cli_st
 %{_bindir}/load_gen
-%{_bindir}/zktreeutil
-%doc src/c/ChangeLog src/c/LICENSE src/c/NOTICE.txt src/c/README src/contrib/zktreeutil/README.txt
-
-%files lib
+%{_bindir}/zk*.sh
+%{_libexecdir}/zkEnv.sh
 %{_libdir}/lib*.so.*
-%doc src/c/LICENSE src/c/NOTICE.txt
-
-%files lib-devel
-%dir %{_includedir}/%{name}
-%{_includedir}/%{name}/*.h
-%{_libdir}/*.so
-%doc src/c/LICENSE src/c/NOTICE.txt
-
-%files lib-doc
-%doc src/c/LICENSE src/c/NOTICE.txt src/c/docs/html/*
-
-%files java
 %dir %{_javadir}/%{name}
 %{_javadir}/%{name}/%{name}.jar
 %{_javadir}/%{name}/%{name}-tests.jar
 %{_javadir}/%{name}/%{name}-ZooInspector.jar
+
+%if 0%{?fedora} >= 21
+%{_datadir}/maven-poms/%{name}/%{name}-%{name}.pom
+%{_datadir}/maven-poms/%{name}/%{name}-%{name}-ZooInspector.pom
+%{_datadir}/maven-metadata/%{name}.xml
+%else
+%{_mavendepmapfragdir}/%{name}
 %{_mavenpomdir}/JPP.%{name}-%{name}.pom
 %{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
-%{_mavendepmapfragdir}/%{name}
-%doc CHANGES.txt LICENSE.txt NOTICE.txt README.txt
+%endif
 
-%files javadoc
-%{_javadocdir}/%{name}
-%doc LICENSE.txt NOTICE.txt
-
-%files -n python-ZooKeeper
-%{python_sitearch}/ZooKeeper-?.?-py%{python_version}.egg-info
-%{python_sitearch}/zookeeper.so
-%doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
-
-%files server
 %attr(0755,root,root) %dir %{_sysconfdir}/zookeeper
 %attr(0644,root,root) %ghost %config(noreplace) %{_sysconfdir}/zookeeper/zoo.cfg
 %attr(0644,root,root) %{_sysconfdir}/zookeeper/zoo_sample.cfg
@@ -317,8 +246,27 @@ getent passwd zookeeper >/dev/null || \
 %attr(0640,zookeeper,zookeeper) %ghost %{_sharedstatedir}/zookeeper/data/myid
 %attr(0750,zookeeper,zookeeper) %dir %{_sharedstatedir}/zookeeper/log
 %{_unitdir}/zookeeper.service
+%doc CHANGES.txt LICENSE.txt NOTICE.txt README.txt
+
+%files devel
+%{_includedir}/%{name}/
+%{_libdir}/*.so
+%doc src/c/LICENSE src/c/NOTICE.txt
+
+%files javadoc
+%{_javadocdir}/%{name}
+%doc LICENSE.txt NOTICE.txt
+
+%files -n python-%{name}
+%{python_sitearch}/ZooKeeper-?.?-py%{python_version}.egg-info
+%{python_sitearch}/zookeeper.so
+%doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Wed Oct 8 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-1
+- Update to latest stable series
+- Cleanup and overhaul package
+
 * Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.5-20
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 

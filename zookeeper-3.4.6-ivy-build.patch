@@ -1,0 +1,52 @@
+diff --git a/build.xml b/build.xml
+index 442d52e..bc1f4a2 100644
+--- a/build.xml
++++ b/build.xml
+@@ -257,7 +257,7 @@ xmlns:maven="antlib:org.apache.maven.artifact.ant">
+         <mkdir dir="${ivy.package.lib}"/>
+         <mkdir dir="${ivy.test.lib}"/>
+         <condition property="ivy.jar.exists">
+-          <available file="${lib.dir}/ivy-${ivy.version}.jar"/>
++          <available file="/usr/share/java/ivy.jar"/>
+         </condition>
+ 
+         <tstamp>
+@@ -343,9 +343,9 @@ xmlns:maven="antlib:org.apache.maven.artifact.ant">
+     
+     <target name="ivy-download" unless="ivy.jar.exists" depends="init">
+       <delete dir="${lib.dir}"
+-              includes="ivy-*.jar" excludes="ivy-${ivy.version}.jar"/>
+-      <get src="${ivy.url}/${ivy.version}/ivy-${ivy.version}.jar"
+-           dest="${lib.dir}/ivy-${ivy.version}.jar" usetimestamp="true"/>
++              includes="ivy.jar" excludes="ivy.jar"/>
++      <get src="${ivy.url}/ivy.jar"
++           dest="${lib.dir}/ivy.jar" usetimestamp="true"/>
+     </target>
+ 
+     <target name="ivy-taskdef" unless="ivy.initialized">
+diff --git a/src/contrib/build-contrib.xml b/src/contrib/build-contrib.xml
+index 0e57d08..708f64f 100644
+--- a/src/contrib/build-contrib.xml
++++ b/src/contrib/build-contrib.xml
+@@ -103,7 +103,7 @@
+     <mkdir dir="${ivy.lib}"/>
+     <mkdir dir="${ivy.test.lib}"/>
+     <condition property="ivy.jar.exists">
+-      <available file="${lib.dir}/ivy-${ivy.version}.jar"/>
++      <available file="/usr/share/java/ivy.jar"/>
+     </condition>
+ 
+     <antcall target="init-contrib"/>
+@@ -219,9 +219,9 @@
+   <!-- ====================================================== -->
+   <target name="ivy-download" unless="ivy.jar.exists" depends="init">
+     <delete dir="${lib.dir}"
+-            includes="ivy-*.jar" excludes="ivy-${ivy.version}.jar"/>
+-    <get src="${ivy.url}/${ivy.version}/ivy-${ivy.version}.jar"
+-         dest="${lib.dir}/ivy-${ivy.version}.jar" usetimestamp="true"/>
++            includes="ivy.jar" excludes="ivy.jar"/>
++    <get src="${ivy.url}/ivy.jar"
++         dest="${lib.dir}/ivy.jar" usetimestamp="true"/>
+   </target>
+ 
+   <target name="ivy-init" depends="ivy-download" unless="ivy.initialized">

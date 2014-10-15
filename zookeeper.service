@@ -6,17 +6,12 @@ ConditionPathExists=/etc/zookeeper/log4j.properties
 ConditionPathExists=/var/lib/zookeeper/data/myid
 
 [Service]
-Type=simple
+Type=forking
 User=zookeeper
 SyslogIdentifier=zookeeper
 WorkingDirectory=/var/lib/zookeeper
-
-#UMask=0027
-#Environment="CP=/etc/zookeeper:/usr/share/java/slf4j/slf4j-log4j12.jar:/usr/share/java/slf4j/slf4j-api.jar:/usr/share/java/netty.jar:/usr/share/java/log4j.jar:/usr/share/java/jline.jar:/usr/share/java/zookeeper/zookeeper.jar"
-#Environment="IPv6=-Djava.net.preferIPv4Stack=false -Djava.net.preferIPv6Addresses=true"
-#Environment="JMX=-Dcom.sun.management.jmxremote"
-
-ExecStart=/usr/lib/jvm/jre-1.7.0/bin/java -cp $CP $JMX $IPv6 org.apache.zookeeper.server.quorum.QuorumPeerMain /etc/zookeeper/zoo.cfg
+ExecStart=/usr/bin/zkServer.sh
+#ExecStop=
 
 [Install]
 WantedBy=multi-user.target
