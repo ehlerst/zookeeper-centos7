@@ -24,6 +24,62 @@ index 442d52e..bc1f4a2 100644
      </target>
  
      <target name="ivy-taskdef" unless="ivy.initialized">
+diff --git a/ivy.xml b/ivy.xml
+index 561832a..0d9e2ed 100644
+--- a/ivy.xml
++++ b/ivy.xml
+@@ -58,12 +58,12 @@
+     <dependency org="junit" name="junit" rev="4.8.1" conf="test->default"/>
+      <dependency org="org.mockito" name="mockito-all" rev="1.8.2"
+                conf="test->default"/>
+-    <dependency org="checkstyle" name="checkstyle" rev="5.0"
++    <dependency org="com.puppycrawl.tools" name="checkstyle" rev="5.6"
+                 conf="test->default"/>
+ 
+     <dependency org="jdiff" name="jdiff" rev="1.0.9"
+                 conf="jdiff->default"/>
+-    <dependency org="xerces" name="xerces" rev="1.4.4"
++    <dependency org="xerces" name="xercesImpl" rev="1.4.4"
+                 conf="jdiff->default"/>
+ 
+     <dependency org="org.apache.rat" name="apache-rat-tasks" 
+diff --git a/ivysettings.xml b/ivysettings.xml
+index 52cfa52..f207811 100644
+--- a/ivysettings.xml
++++ b/ivysettings.xml
+@@ -17,29 +17,14 @@
+    limitations under the License.
+ -->
+ 
+-  <property name="repo.maven.org"
+-    value="http://repo1.maven.org/maven2/" override="false"/>
+-  <property name="repo.jboss.org"
+-    value="http://repository.jboss.org/nexus/content/groups/public/" override="false"/>
+-  <property name="repo.sun.org"
+-    value="http://download.java.net/maven/2/" override="false"/>
+-  <property name="maven2.pattern"
+-    value="[organisation]/[module]/[revision]/[module]-[revision]"/>
+-  <property name="maven2.pattern.ext" value="${maven2.pattern}.[ext]"/>
+   <include url="${ivy.default.conf.dir}/ivyconf-local.xml"/>
+   <settings defaultResolver="default"/>
++  <typedef name="xmvn" classname="org.fedoraproject.maven.connector.ivy.IvyResolver"/>
+   <resolvers>
+-    <ibiblio name="maven2" root="${repo.maven.org}"
+-      pattern="${maven2.pattern.ext}" m2compatible="true"/>
+-    <ibiblio name="jboss-maven2" root="${repo.jboss.org}"
+-      pattern="${maven2.pattern.ext}" m2compatible="true"/>
+-    <ibiblio name="sun-maven2" root="${repo.sun.org}"
+-      pattern="${maven2.pattern.ext}" m2compatible="true"/>
++    <xmvn name="XMvn"/>
+ 
+     <chain name="default" dual="true">
+-      <resolver ref="maven2"/>
+-      <resolver ref="jboss-maven2"/>
+-      <resolver ref="sun-maven2"/>
++      <resolver ref="XMvn"/>
+     </chain>
+ 
+   </resolvers>
 diff --git a/src/contrib/build-contrib.xml b/src/contrib/build-contrib.xml
 index 0e57d08..708f64f 100644
 --- a/src/contrib/build-contrib.xml
@@ -50,3 +106,16 @@ index 0e57d08..708f64f 100644
    </target>
  
    <target name="ivy-init" depends="ivy-download" unless="ivy.initialized">
+diff --git a/src/contrib/build.xml b/src/contrib/build.xml
+index 7f7ba4f..701dfea 100644
+--- a/src/contrib/build.xml
++++ b/src/contrib/build.xml
+@@ -20,7 +20,7 @@
+ <project name="zookeepercontrib" default="compile" basedir=".">
+ 
+   <property name="contribfilesetincludes" value="*/build.xml" />
+-  <property name="contribfilesetexcludes" value="" />
++  <property name="contribfilesetexcludes" value="rest/build.xml" />
+ 
+   <fileset id="contribfileset" dir=".">
+     <include name="${contribfilesetincludes}"/>

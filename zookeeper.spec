@@ -43,6 +43,7 @@ BuildRequires: jtoaster
 BuildRequires: junit
 %if 0%{?fedora} >= 21
 BuildRequires: mvn(org.slf4j:slf4j-log4j12)
+BuildRequires: javapackages-tools
 %else
 BuildRequires: mvn(log4j:log4j)
 %endif
@@ -118,7 +119,7 @@ package
 
 pushd src/c
 autoreconf -if
-%configure
+%configure --disable-static --disable-rpath
 %{__make} %{?_smp_mflags}
 popd
 
@@ -151,13 +152,14 @@ install -pm 755 %{SOURCE3} %{buildroot}%{_libexecdir}
 
 %if 0%{?fedora} >= 21
 mkdir -p %{buildroot}%{_datadir}/maven-metadata
-mkdir -p %{buildroot}%{_datadir}/maven-poms/%{name}
+mkdir -p %{buildroot}%{_datadir}/maven-poms
+install -pm 644 build/%{name}-%{version}/dist-maven/%{name}-%{version}.pom %{buildroot}%{_datadir}/maven-poms/%{name}-%{name}.pom
 
 %add_maven_depmap %{name}-%{name}.pom %{name}/%{name}.jar
 %add_maven_depmap org.apache.zookeeper:zookeeper::tests:%{version} %{name}/%{name}-tests.jar
 
-install -pm 644 %{SOURCE1} %{buildroot}%{_datadir}/maven-poms/%{name}/%{name}-%{name}-ZooInspector.pom
-sed -i "s|@version@|%{version}|" %{buildroot}%{_datadir}/maven-poms/%{name}/%{name}-%{name}-ZooInspector.pom
+install -pm 644 %{SOURCE1} %{buildroot}%{_datadir}/maven-poms/%{name}-%{name}-ZooInspector.pom
+sed -i "s|@version@|%{version}|" %{buildroot}%{_datadir}/maven-poms/%{name}-%{name}-ZooInspector.pom
 %add_maven_depmap %{name}-%{name}-ZooInspector.pom %{name}/%{name}-ZooInspector.jar
 %else
 mkdir -p %{buildroot}%{_mavenpomdir}
@@ -169,7 +171,6 @@ install -pm 644 build/%{name}-%{version}/dist-maven/%{name}-%{version}.pom %{bui
 install -pm 644 %{SOURCE1} %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
 sed -i "s|@version@|%{version}|" %{buildroot}%{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
 %add_maven_depmap JPP.%{name}-%{name}-ZooInspector.pom %{name}/%{name}-ZooInspector.jar
-
 %endif
 
 mkdir -p %{buildroot}%{_javadocdir}/%{name}
@@ -226,8 +227,8 @@ getent passwd zookeeper >/dev/null || \
 %{_javadir}/%{name}/%{name}-ZooInspector.jar
 
 %if 0%{?fedora} >= 21
-%{_datadir}/maven-poms/%{name}/%{name}-%{name}.pom
-%{_datadir}/maven-poms/%{name}/%{name}-%{name}-ZooInspector.pom
+%{_datadir}/maven-poms/%{name}-%{name}.pom
+%{_datadir}/maven-poms/%{name}-%{name}-ZooInspector.pom
 %{_datadir}/maven-metadata/%{name}.xml
 %else
 %{_mavendepmapfragdir}/%{name}
