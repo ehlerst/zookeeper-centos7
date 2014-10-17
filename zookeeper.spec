@@ -17,6 +17,8 @@ Source3:       zkEnv.sh
 Patch1:        %{name}-3.4.5-zktreeutil-gcc.patch
 Patch2:        %{name}-3.4.6-ivy-build.patch
 #Patch3:        {name}-3.4.5-add-PIE-and-RELRO.patch
+# The native bits don't compile on ARM
+ExcludeArch:   %{arm}
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -41,12 +43,16 @@ BuildRequires: checkstyle
 BuildRequires: jline1
 BuildRequires: jtoaster
 BuildRequires: junit
+BuildRequires: jdiff
 %if 0%{?fedora} >= 21
 BuildRequires: mvn(org.slf4j:slf4j-log4j12)
 BuildRequires: javapackages-tools
+Requires:      log4j12
 %else
 BuildRequires: mvn(log4j:log4j)
+Requires:      log4j
 %endif
+
 BuildRequires: json_simple
 
 BuildRequires: mockito
@@ -55,13 +61,16 @@ BuildRequires: slf4j
 BuildRequires: xerces-j2
 BuildRequires: xml-commons-apis
 
+# remove later on.
+BuildRequires: apache-commons-parent
+BuildRequires: jetty-server
+BuildRequires: jetty-servlet
 BuildRequires: systemd
 
 Requires:      checkstyle
 Requires:      jline1
 Requires:      jtoaster
 Requires:      junit
-Requires:      log4j
 Requires:      mockito
 Requires:      netty3
 Requires:      slf4j
@@ -111,6 +120,7 @@ sed -i 's@^dataDir=.*$@dataDir=%{_sharedstatedir}/zookeeper/data\ndataLogDir=%{_
 
 %build
 %ant -Divy.mode=local \
+-DCLASSPATH=/usr/share/java/log4j12-1.2.17.jar \
 -Dtarget.jdk=1.5 \
 -Djavadoc.link.java=%{_javadocdir}/java \
 -Dant.build.javac.source=1.5 \
