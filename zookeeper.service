@@ -10,8 +10,15 @@ Type=forking
 User=zookeeper
 SyslogIdentifier=zookeeper
 WorkingDirectory=/var/lib/zookeeper
-ExecStart=/usr/bin/zkServer.sh
-#ExecStop=
+ExecStart=/usr/bin/zkServer.sh start zoo.cfg
+ExecStop=/usr/bin/zkServer.sh stop
+
+User=root
+Group=root
+# TODO: check updated permissions.
+# Group=zookeeper
+Restart=always
+RestartSec=20
 
 [Install]
 WantedBy=multi-user.target

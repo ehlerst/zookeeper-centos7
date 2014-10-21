@@ -16,7 +16,10 @@ Source3:       zkEnv.sh
 
 Patch1:        %{name}-3.4.5-zktreeutil-gcc.patch
 Patch2:        %{name}-3.4.6-ivy-build.patch
-#Patch3:        {name}-3.4.5-add-PIE-and-RELRO.patch
+Patch3:        %{name}-3.4.6-server.patch
+
+# The native bits don't compile on ARM
+ExcludeArch:   %{arm}
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -41,12 +44,16 @@ BuildRequires: checkstyle
 BuildRequires: jline1
 BuildRequires: jtoaster
 BuildRequires: junit
+BuildRequires: jdiff
 %if 0%{?fedora} >= 21
 BuildRequires: mvn(org.slf4j:slf4j-log4j12)
 BuildRequires: javapackages-tools
+Requires:      log4j12
 %else
 BuildRequires: mvn(log4j:log4j)
+Requires:      log4j
 %endif
+
 BuildRequires: json_simple
 
 BuildRequires: mockito
@@ -55,13 +62,16 @@ BuildRequires: slf4j
 BuildRequires: xerces-j2
 BuildRequires: xml-commons-apis
 
+# remove later on.
+BuildRequires: apache-commons-parent
+BuildRequires: jetty-server
+BuildRequires: jetty-servlet
 BuildRequires: systemd
 
 Requires:      checkstyle
 Requires:      jline1
 Requires:      jtoaster
 Requires:      junit
-Requires:      log4j
 Requires:      mockito
 Requires:      netty3
 Requires:      slf4j
@@ -74,20 +84,21 @@ naming, providing distributed synchronization, and providing group services.
 
 %package devel
 Summary:       Development files for the %{name} library
-Requires:      %{name}-lib%{?_isa} = %{version}-%{release}
+Requires:      %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 Development files for the ZooKeeper C client library.
 
 %package javadoc
 Summary:       Javadoc for %{name}
+BuildArch:     noarch
 
 %description javadoc
 This package contains javadoc for %{name}.
 
 %package -n python-%{name}
 Summary:       Python support for %{name}
-Requires:      %{name}-lib%{?_isa} = %{version}-%{release}
+Requires:      %{name}%{?_isa} = %{version}-%{release}
 Provides:      zkpython%{?_isa} = %{version}-%{release}
 Requires:      python2
 
@@ -99,7 +110,7 @@ The python-%{name} package contains Python bindings for %{name}.
 
 %patch1 -p0
 %patch2 -p1
-#%%patch3 -p1
+%patch3 -p1
 
 iconv -f iso8859-1 -t utf-8 src/c/ChangeLog > src/c/ChangeLog.conv && mv -f src/c/ChangeLog.conv src/c/ChangeLog
 sed -i 's/\r//' src/c/ChangeLog
@@ -133,6 +144,11 @@ popd
 %endif
 
 %install
+
+# the following is used to update zkEnv.sh
+# find . -name "*.jar" -exec basename {} \; |sort|uniq
+# remove items that don't belong and update execute build-classpath
+
 #install the c tools
 pushd src/c
 %make_install
@@ -241,11 +257,11 @@ getent passwd zookeeper >/dev/null || \
 %attr(0644,root,root) %{_sysconfdir}/zookeeper/zoo_sample.cfg
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/zookeeper/log4j.properties
 
-%attr(0750,zookeeper,zookeeper) %dir %{_localstatedir}/log/zookeeper
+%attr(0755,zookeeper,zookeeper) %dir %{_localstatedir}/log/zookeeper
 %attr(0755,root,root) %dir %{_sharedstatedir}/zookeeper
 %attr(0750,zookeeper,zookeeper) %dir %{_sharedstatedir}/zookeeper/data
 %attr(0640,zookeeper,zookeeper) %ghost %{_sharedstatedir}/zookeeper/data/myid
-%attr(0750,zookeeper,zookeeper) %dir %{_sharedstatedir}/zookeeper/log
+%attr(0755,zookeeper,zookeeper) %dir %{_sharedstatedir}/zookeeper/log
 %{_unitdir}/zookeeper.service
 %doc CHANGES.txt LICENSE.txt NOTICE.txt README.txt
 
@@ -267,6 +283,7 @@ getent passwd zookeeper >/dev/null || \
 * Wed Oct 8 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-1
 - Update to latest stable series
 - Cleanup and overhaul package
+- Updated system integration
 
 * Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.5-20
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
