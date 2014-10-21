@@ -281,7 +281,7 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
-* Wed Oct 8 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-1
+* Tue Oct 21 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-1
 - Update to latest stable series
 - Cleanup and overhaul package
 - Updated system integration
