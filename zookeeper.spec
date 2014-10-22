@@ -39,25 +39,29 @@ BuildRequires: python-devel
 BuildRequires: ant
 BuildRequires: ant-junit
 BuildRequires: apache-ivy
-BuildRequires: ivy-local
 BuildRequires: checkstyle
-BuildRequires: jline1
+BuildRequires: ivy-local
+BuildRequires: javapackages-tools
+
 BuildRequires: jtoaster
 BuildRequires: junit
 BuildRequires: jdiff
 %if 0%{?fedora} >= 21
 BuildRequires: mvn(org.slf4j:slf4j-log4j12)
 BuildRequires: javapackages-tools
+BuildRequires: jline1
+BuildRequires: netty3
 Requires:      log4j12
 %else
 BuildRequires: mvn(log4j:log4j)
+BuildRequires: jline
+BuildRequires: netty
 Requires:      log4j
 %endif
 
 BuildRequires: json_simple
 
 BuildRequires: mockito
-BuildRequires: netty3
 BuildRequires: slf4j
 BuildRequires: xerces-j2
 BuildRequires: xml-commons-apis
