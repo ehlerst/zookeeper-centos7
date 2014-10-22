@@ -17,9 +17,11 @@ Source3:       zkEnv.sh
 Patch1:        %{name}-3.4.5-zktreeutil-gcc.patch
 Patch2:        %{name}-3.4.6-ivy-build.patch
 Patch3:        %{name}-3.4.6-server.patch
+# patch accepted in 3.5.0
+Patch4:        https://issues.apache.org/jira/secure/attachment/12570030/mt_adaptor.c.patch
 
 # The native bits don't compile on ARM
-ExcludeArch:   %{arm}
+##ExcludeArch:   %%{arm}
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -115,6 +117,7 @@ The python-%{name} package contains Python bindings for %{name}.
 %patch1 -p0
 %patch2 -p1
 %patch3 -p1
+%patch4 -p0 -F2
 
 iconv -f iso8859-1 -t utf-8 src/c/ChangeLog > src/c/ChangeLog.conv && mv -f src/c/ChangeLog.conv src/c/ChangeLog
 sed -i 's/\r//' src/c/ChangeLog
