@@ -48,6 +48,7 @@ BuildRequires: junit
 BuildRequires: jdiff
 %if 0%{?fedora} >= 21
 BuildRequires: mvn(org.slf4j:slf4j-log4j12)
+BuildRequires: objectweb-pom
 BuildRequires: jline1
 BuildRequires: netty3
 Requires:      log4j12
