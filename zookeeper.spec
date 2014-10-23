@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -20,8 +20,6 @@ Patch3:        %{name}-3.4.6-server.patch
 # patch accepted in 3.5.0
 Patch4:        https://issues.apache.org/jira/secure/attachment/12570030/mt_adaptor.c.patch
 
-# The native bits don't compile on ARM
-##ExcludeArch:   %%{arm}
 
 BuildRequires: autoconf
 BuildRequires: automake
@@ -83,11 +81,13 @@ Requires:      netty3
 Requires:      slf4j
 Requires:      java
 Requires:      jpackage-utils
+Requires:      %{name}-java = %{version}-%{release}
 
 %description
 ZooKeeper is a centralized service for maintaining configuration information,
 naming, providing distributed synchronization, and providing group services.
 
+##############################################
 %package devel
 Summary:       Development files for the %{name} library
 Requires:      %{name}%{?_isa} = %{version}-%{release}
@@ -95,6 +95,16 @@ Requires:      %{name}%{?_isa} = %{version}-%{release}
 %description devel
 Development files for the ZooKeeper C client library.
 
+##############################################
+%package java
+Summary:        Java interface for %{name}
+Group:          Development/Libraries
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%description java
+The %{name}-java package contains Java bindings for %{name}.
+
+##############################################
 %package javadoc
 Summary:       Javadoc for %{name}
 BuildArch:     noarch
@@ -245,20 +255,6 @@ getent passwd zookeeper >/dev/null || \
 %{_bindir}/zk*.sh
 %{_libexecdir}/zkEnv.sh
 %{_libdir}/lib*.so.*
-%dir %{_javadir}/%{name}
-%{_javadir}/%{name}/%{name}.jar
-%{_javadir}/%{name}/%{name}-tests.jar
-%{_javadir}/%{name}/%{name}-ZooInspector.jar
-
-%if 0%{?fedora} >= 21
-%{_datadir}/maven-poms/%{name}-%{name}.pom
-%{_datadir}/maven-poms/%{name}-%{name}-ZooInspector.pom
-%{_datadir}/maven-metadata/%{name}.xml
-%else
-%{_mavendepmapfragdir}/%{name}
-%{_mavenpomdir}/JPP.%{name}-%{name}.pom
-%{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
-%endif
 
 %attr(0755,root,root) %dir %{_sysconfdir}/zookeeper
 %attr(0644,root,root) %ghost %config(noreplace) %{_sysconfdir}/zookeeper/zoo.cfg
@@ -271,6 +267,22 @@ getent passwd zookeeper >/dev/null || \
 %attr(0640,zookeeper,zookeeper) %ghost %{_sharedstatedir}/zookeeper/data/myid
 %attr(0755,zookeeper,zookeeper) %dir %{_sharedstatedir}/zookeeper/log
 %{_unitdir}/zookeeper.service
+%doc CHANGES.txt LICENSE.txt NOTICE.txt README.txt
+
+%files java
+%dir %{_javadir}/%{name}
+%{_javadir}/%{name}/%{name}.jar
+%{_javadir}/%{name}/%{name}-tests.jar
+%{_javadir}/%{name}/%{name}-ZooInspector.jar
+%if 0%{?fedora} >= 21
+%{_datadir}/maven-poms/%{name}-%{name}.pom
+%{_datadir}/maven-poms/%{name}-%{name}-ZooInspector.pom
+%{_datadir}/maven-metadata/%{name}.xml
+%else
+%{_mavendepmapfragdir}/%{name}
+%{_mavenpomdir}/JPP.%{name}-%{name}.pom
+%{_mavenpomdir}/JPP.%{name}-%{name}-ZooInspector.pom
+%endif
 %doc CHANGES.txt LICENSE.txt NOTICE.txt README.txt
 
 %files devel
@@ -288,6 +300,9 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Thu Oct 23 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-2
+- Add back -java subpackage
+
 * Tue Oct 21 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-1
 - Update to latest stable series
 - Cleanup and overhaul package
