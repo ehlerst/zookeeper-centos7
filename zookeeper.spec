@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -300,6 +300,9 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Tue Jan 27 2015 Petr Machata <pmachata@redhat.com> - 3.4.6-3
+- Rebuild for boost 1.57.0
+
 * Thu Oct 23 2014 Timothy St. Clair <tstclair@redhat.com> - 3.4.6-2
 - Add back -java subpackage
 
