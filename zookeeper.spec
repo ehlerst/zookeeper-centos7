@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       8%{?dist}
+Release:       9%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -300,6 +300,9 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Fri Oct 16 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-9
+- Update zkEnv.sh CLASSPATH to fix bz#1261458
+
 * Thu Aug 27 2015 Jonathan Wakely <jwakely@redhat.com> - 3.4.6-8
 - Rebuilt for Boost 1.59
 
