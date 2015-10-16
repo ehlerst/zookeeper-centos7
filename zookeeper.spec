@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       9%{?dist}
+Release:       11%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -300,6 +300,12 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Fri Oct 16 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-11
+- Fix bad rollback. Rollback to netty 3.6.6, not 3.7.0 (f21 only)
+
+* Fri Oct 16 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-10
+- Rollback changes for netty 3.9.3 for f21 only
+
 * Fri Oct 16 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-9
 - Update zkEnv.sh CLASSPATH to fix bz#1261458
 
