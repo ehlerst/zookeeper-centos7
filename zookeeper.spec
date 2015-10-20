@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       11%{?dist}
+Release:       12%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -300,6 +300,9 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Mon Oct 19 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-12
+- Fix bz#1272694 Remove precondition on myid file for standalone defaults
+
 * Fri Oct 16 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-11
 - Fix bad rollback. Rollback to netty 3.6.6, not 3.7.0 (f21 only)
 

@@ -3,7 +3,6 @@ Description=Apache ZooKeeper
 After=network.target
 ConditionPathExists=/etc/zookeeper/zoo.cfg
 ConditionPathExists=/etc/zookeeper/log4j.properties
-ConditionPathExists=/var/lib/zookeeper/data/myid
 
 [Service]
 Type=forking
