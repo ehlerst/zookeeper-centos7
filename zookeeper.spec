@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       12%{?dist}
+Release:       13%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -33,7 +33,6 @@ BuildRequires: java-javadoc
 BuildRequires: jpackage-utils
 BuildRequires: libtool
 BuildRequires: libxml2-devel
-BuildRequires: log4cxx-devel
 BuildRequires: python-devel
 
 BuildRequires: ant
@@ -300,6 +299,9 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Tue Nov 03 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-13
+- Remove unused build dependency log4cxx
+
 * Mon Oct 19 2015 Christopher Tubbs <ctubbsii-fedora@apache.org> - 3.4.6-12
 - Fix bz#1272694 Remove precondition on myid file for standalone defaults
 
