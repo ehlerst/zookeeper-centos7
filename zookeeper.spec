@@ -5,7 +5,7 @@
 
 Name:          zookeeper
 Version:       3.4.6
-Release:       15%{?dist}
+Release:       16%{?dist}
 Summary:       A high-performance coordination service for distributed applications
 License:       ASL 2.0 and BSD
 URL:           http://zookeeper.apache.org/
@@ -299,6 +299,9 @@ getent passwd zookeeper >/dev/null || \
 %doc LICENSE.txt NOTICE.txt src/contrib/zkpython/README
 
 %changelog
+* Fri Feb 05 2016 Fedora Release Engineering <releng@fedoraproject.org> - 3.4.6-16
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Sat Jan 16 2016 Jonathan Wakely <jwakely@redhat.com> - 3.4.6-15
 - Rebuilt for Boost 1.60
 
