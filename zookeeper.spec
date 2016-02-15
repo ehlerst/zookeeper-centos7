@@ -19,12 +19,13 @@ Patch2:        %{name}-3.4.6-ivy-build.patch
 Patch3:        %{name}-3.4.6-server.patch
 # patch accepted in 3.5.0
 Patch4:        https://issues.apache.org/jira/secure/attachment/12570030/mt_adaptor.c.patch
+Patch5:        0001-cppunit-config-no-longer-exists-use-pkg-config.patch
 
 
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: boost-devel
-BuildRequires: cppunit-devel
+BuildRequires: pkgconfig(cppunit)
 BuildRequires: dos2unix
 BuildRequires: doxygen
 BuildRequires: graphviz
@@ -127,6 +128,7 @@ The python-%{name} package contains Python bindings for %{name}.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p0 -F2
+%patch5 -p1
 
 iconv -f iso8859-1 -t utf-8 src/c/ChangeLog > src/c/ChangeLog.conv && mv -f src/c/ChangeLog.conv src/c/ChangeLog
 sed -i 's/\r//' src/c/ChangeLog
@@ -144,6 +146,14 @@ sed -i 's@^dataDir=.*$@dataDir=%{_sharedstatedir}/zookeeper/data\ndataLogDir=%{_
 -Dant.build.javac.source=1.5 \
 -Dant.build.javac.target=1.5 \
 package
+
+# cppunit-config patch touches configure.ac in these dirs
+pushd src/recipes/lock/src/c
+autoreconf -if
+popd
+pushd src/recipes/queue/src/c
+autoreconf -if
+popd
 
 pushd src/c
 autoreconf -if
